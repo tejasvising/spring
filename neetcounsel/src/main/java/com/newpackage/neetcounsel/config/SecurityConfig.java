@@ -43,7 +43,7 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .cors(Customizer.withDefaults()) 
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers("/api/auth/**", "/oauth2/**").permitAll()
            //     .requestMatchers("/verify").permitAll()
                 .anyRequest().authenticated()
             )
@@ -74,7 +74,7 @@ public class SecurityConfig {
     }
     @Bean
     public OAuth2AuthenticationSuccessHandler oauth2SuccessHandler() {
-        return new OAuth2AuthenticationSuccessHandler(jwtUtil);
+        return new OAuth2AuthenticationSuccessHandler(jwtUtil,userRepository);
     }
     @Bean
     public LogoutSuccessHandler logoutSuccessHandler() {

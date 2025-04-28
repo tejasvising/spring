@@ -1,55 +1,54 @@
 package com.newpackage.neetcounsel.utils;
 
-import com.newpackage.neetcounsel.utils.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
-import java.net.URLEncoder;
-import org.springframework.security.web.RedirectStrategy;
-import org.springframework.security.web.DefaultRedirectStrategy;
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import java.util.Optional;
+
+import com.newpackage.neetcounsel.models.User;
+import com.newpackage.neetcounsel.repository.UserRepository;
 
 @Component
-public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccessHandler {
+public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
     private final JwtUtil jwtUtil;
-    
-    private final RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
-    public OAuth2AuthenticationSuccessHandler(JwtUtil jwtUtil) {
+    private final UserRepository userRepository;
+    public OAuth2AuthenticationSuccessHandler(JwtUtil jwtUtil,UserRepository userRepository) {
         this.jwtUtil = jwtUtil;
+        this.userRepository=userRepository;
     }
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request,
-                                      HttpServletResponse response,
-                                      Authentication authentication) throws IOException {
+                                         HttpServletResponse response,
+                                         Authentication authentication) throws IOException {
         OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
         Map<String, Object> attributes = oauthToken.getPrincipal().getAttributes();
         
-        // Proper email extraction
         String email = (String) attributes.get("email");
         
-        
-        String token = jwtUtil.generateToken(email);
-        
-        if (email == null || token == null) {
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Missing authentication parameters");
+        if (email == null) {
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Missing email");
             return;
         }
 
-        // URL encode parameters
-        String redirectUrl = "http://127.0.0.1:8080/dashboard" + "#" +
-            "token=" + URLEncoder.encode(token, StandardCharsets.UTF_8) + "&" +
-            "email=" + URLEncoder.encode(email, StandardCharsets.UTF_8);
+        String token = jwtUtil.generateToken(email);
+        Optional<User> user=userRepository.findByEmail(email);
+        
+        // Redirect to frontend with token and email as query parameters
+        String redirectUrl = "http://localhost:3000/select" +
+                "?token=" + URLEncoder.encode(token, StandardCharsets.UTF_8) +
+                "&email=" + URLEncoder.encode(email, StandardCharsets.UTF_8)+"&userid="+user.get().getId();
 
-        System.out.println("Redirecting to: " + redirectUrl); // Debug log
-        redirectStrategy.sendRedirect(request, response, redirectUrl);
+        System.out.println("Redirecting to: " + redirectUrl);
+        
+        getRedirectStrategy().sendRedirect(request, response, redirectUrl);
     }
 }

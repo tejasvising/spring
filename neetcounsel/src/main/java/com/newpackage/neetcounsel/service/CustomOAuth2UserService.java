@@ -43,7 +43,7 @@ package com.newpackage.neetcounsel.service;
 	            newUser.setProviderId(providerId);
 	            return userRepository.save(newUser);
 	        });
-
+	        System.out.println("user made or exists");
 	        return oauth2User;
 	    }
 	}

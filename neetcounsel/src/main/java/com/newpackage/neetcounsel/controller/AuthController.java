@@ -91,8 +91,7 @@ public class AuthController {
         // Clear any authentication
         SecurityContextHolder.clearContext();
         
-        // For JWT tokens - client should delete the token
-        // For OAuth2 - we'll invalidate the session
+       
         new SecurityContextLogoutHandler().logout(request, response, null);
         
         return ResponseEntity.ok().body(Map.of(
