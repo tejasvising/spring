@@ -1,11 +1,14 @@
 package com.newpackage.neetcounsel.controller;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -39,46 +42,101 @@ public class AuthController {
     @Autowired private JwtUtil jwtUtil;
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody Map<String, String> request) {
+    public ResponseEntity<?> register(@RequestBody Map<String, String> request, HttpServletResponse response) {
         String email = request.get("email");
         String password = request.get("password");
         String name = request.get("name");
 
-        if (userRepository.findByEmail(email).isPresent()) {
-            return ResponseEntity.badRequest().body("Email already in use");
+        if (email == null || password == null || name == null) {
+            return ResponseEntity.badRequest().body(Map.of(
+                "error", "Email, password, and name are required"
+            ));
         }
 
+        if (userRepository.findByEmail(email).isPresent()) {
+            return ResponseEntity.badRequest().body(Map.of(
+                "error", "Email already in use"
+            ));
+        }
+
+        // Create new user
         User user = new User();
         user.setEmail(email);
-        user.setPassword(passwordEncoder.encode(password));
+        user.setPassword(passwordEncoder.encode(password)); // hash password
         user.setName(name);
         user.setAuthProvider("local");
 
         userRepository.save(user);
+
+        // Generate JWT
         String token = jwtUtil.generateToken(email);
-        return ResponseEntity.ok(Map.of("userid", user.getId(),"token",token));
+
+        // Set Secure Cookie
+        ResponseCookie cookie = ResponseCookie.from("token", token)
+                .httpOnly(true)
+                .secure(false)
+                .path("/")
+                
+                .sameSite("Strict")
+                .build();
+
+        response.setHeader("Set-Cookie", cookie.toString());
+
+        // Return minimal user info
+        return ResponseEntity.ok(Map.of(
+            "userid", user.getId(),
+            "message", "Registration successful"
+        ));
     }
 
-    @PostMapping("/login")
+
+ 
   //  @CrossOrigin(origins ="http://localhost:3000", allowedHeaders = "*", allowCredentials = "true", methods = {RequestMethod.POST} )
-    public ResponseEntity<?> login(@RequestBody Map<String, String> request) {
-    	try {
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody Map<String, String> request, HttpServletResponse response) {
         String email = request.get("email");
         String password = request.get("password");
 
+        if (email == null || password == null) {
+            return ResponseEntity.badRequest().body(Map.of(
+                "error", "Email and password must be provided"
+            ));
+        }
+
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElse(null);
+
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
+                "error", "Invalid email or password"
+            ));
+        }
 
         if (!passwordEncoder.matches(password, user.getPassword())) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
+                "error", "Invalid email or password"
+            ));
         }
 
         String token = jwtUtil.generateToken(email);
-        return ResponseEntity.ok(Map.of("userid", user.getId(),"token",token));
-    	}
-    	catch(Exception e){
-    		return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");  	}
+        System.out.println("tokenme:"+token);
+        ResponseCookie cookie = ResponseCookie.from("token", token)
+                .httpOnly(true)
+                .secure(false)
+                .path("/")
+                .maxAge(7 * 24 * 60 * 60)
+                
+                .sameSite("Lax")
+                .build();
+
+        response.setHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+        
+        return ResponseEntity.ok(Map.of(
+            "userid", user.getId(),
+            "token", token
+        ));
     }
+
     
     @GetMapping("/oauth-success")
     public ResponseEntity<?> oauthSuccess(@RequestParam String token) {
@@ -86,19 +144,30 @@ public class AuthController {
     }
     
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(HttpServletRequest request, 
-                                  HttpServletResponse response) {
-        // Clear any authentication
+    public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {
+        // Clear Spring Security Context
         SecurityContextHolder.clearContext();
-        
-       
         new SecurityContextLogoutHandler().logout(request, response, null);
-        
-        return ResponseEntity.ok().body(Map.of(
+
+        // 🛡️ Delete the token cookie by setting it empty with maxAge=0
+        ResponseCookie deleteCookie = ResponseCookie.from("token", "")
+                .httpOnly(true)
+                .secure(request.isSecure())
+                .path("/")
+                .domain("localhost")
+                .maxAge(0) // expire immediately
+                .sameSite("Lax")
+                .build();
+
+        response.setHeader(HttpHeaders.SET_COOKIE, deleteCookie.toString());
+        response.setHeader("Cache-Control", "no-store");
+
+        return ResponseEntity.ok(Map.of(
             "message", "Logout successful",
             "timestamp", Instant.now().toString()
         ));
     }
+
    /* 
     @Bean
     public WebMvcConfigurer corsConfigurer() {

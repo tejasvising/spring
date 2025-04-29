@@ -42,7 +42,7 @@ public class PaymentController {
     private CallingAPIService callingAPIService;
     
     @GetMapping("/get-key")
-	//@CrossOrigin(origins ="http://localhost:3000", allowedHeaders = "*", allowCredentials = "true", methods = {RequestMethod.GET} )
+	
     public ResponseEntity get_key() {
     	System.out.println("in get-key");
     	HashMap<String,String> map=new HashMap<>();

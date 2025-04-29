@@ -17,7 +17,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 //import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
-
+import org.springframework.web.cors.CorsConfigurationSource;
 
 import com.newpackage.neetcounsel.repository.UserRepository;
 import com.newpackage.neetcounsel.service.CustomOAuth2UserService;
@@ -36,12 +36,12 @@ public class SecurityConfig {
 
     @Autowired private JwtUtil jwtUtil;
     @Autowired private UserRepository userRepository;
-
+    @Autowired private CorsConfig corsConfig;
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
             .csrf(csrf -> csrf.disable())
-            .cors(Customizer.withDefaults()) 
+            .cors(cors -> cors.configurationSource(corsConfig.corsConfigurationSource()))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/**", "/oauth2/**").permitAll()
            //     .requestMatchers("/verify").permitAll()
@@ -55,7 +55,7 @@ public class SecurityConfig {
                             authorization.authorizationRequestRepository(cookieAuthorizationRequestRepository())))
             
             .sessionManagement(session -> session
-                    .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+                    .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
             .logout(logout -> logout
                     .logoutUrl("/api/auth/logout")  // Unified logout endpoint

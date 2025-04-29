@@ -36,5 +36,17 @@ public class JwtUtil {
     public boolean validateToken(String token, UserDetails userDetails) {
         return extractEmail(token).equals(userDetails.getUsername());
     }
+    public boolean validateToken(String token) {
+        try {
+            Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
 }
 
