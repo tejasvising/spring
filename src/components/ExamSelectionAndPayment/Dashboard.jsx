@@ -23,10 +23,11 @@ import {  onAuthStateChanged,signOut } from "firebase/auth";
             console.log("User signed in:", user_uid);
             console.log(`http://127.0.0.1:8080/pdfdownload?userID=${user_uid}`);
 
-            const res = await fetch(`http://127.0.0.1:8080/pdfdownload?userID=${user_uid}`, {
+            const res = await fetch(`http://localhost:8080/pdfdownload?userID=${user_uid}`, {
                 method: 'GET',
+                credentials:'include',
                 headers: {
-                  'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                //  'Authorization': `Bearer ${localStorage.getItem('token')}`,
                   'Content-Type': 'application/json'
                 },
             });
@@ -82,13 +83,14 @@ import {  onAuthStateChanged,signOut } from "firebase/auth";
       
       const res=await fetch('http://localhost:8080/api/auth/logout', {
         method: 'POST',
+        credentials:'include',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({
-          "userid": localStorage.getItem('userid'),
-          "token": localStorage.getItem('token')
-        }),
+        // body: JSON.stringify({
+        //   "userid": localStorage.getItem('userid'),
+        //  // "token": localStorage.getItem('token')
+        // }),
       });
       const data= await res.text();
       console.log("logoutted: ",data);

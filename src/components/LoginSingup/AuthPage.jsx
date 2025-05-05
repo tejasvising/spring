@@ -71,7 +71,7 @@ const AuthPage = () => {
       const data= await res.text();
       console.log("register api data: ",data.userid);
       if(data=='Registered successfully'){
-        //localStorage.setItem('userid', data.userid);
+        localStorage.setItem('userid', data.userid);
         //localStorage.setItem('token', data.token);
       }
     }
@@ -98,7 +98,7 @@ const AuthPage = () => {
       });
       const data= await res.json();
       console.log("User signed in:", data.userid);
-     // localStorage.setItem('userid', data.userid);
+     localStorage.setItem('userid', data.userid);
      // localStorage.setItem('token', data.token);
      // console.log("login api data: ",data);
       let userCredential;

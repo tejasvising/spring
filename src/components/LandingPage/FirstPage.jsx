@@ -34,6 +34,7 @@ const Firstpage = () => {
       
       const res=await fetch('http://localhost:8080/api/auth/logout', {
         method: 'POST',
+        credentials: "include",
         headers: {
           'Content-Type': 'application/json'
         },
@@ -78,10 +79,10 @@ const Firstpage = () => {
           <a href="/dashboard" className="hover:text-gray-300">Dashboard</a>
           <a href="#contact" className="hover:text-gray-300">Contact</a>
           <button
-            onClick={() => (!!localStorage.getItem('token') ? handleSignOut() : navigate("/auth"))}
+            onClick={() => (!!localStorage.getItem('userid') ? handleSignOut() : navigate("/auth"))}
             className="bg-amber-400 text-black px-4 py-2 rounded-lg hover:bg-amber-500"
           >
-            {localStorage.getItem('token')!=null ? "Logout" : "Sign in"}
+            {localStorage.getItem('userid')!=null ? "Logout" : "Sign in"}
           </button>
         </div>
       </nav>
@@ -99,7 +100,7 @@ const Firstpage = () => {
             <button
               className="bg-amber-400 text-black px-6 py-3 rounded-lg hover:bg-amber-500 font-medium"
               onClick={() => {
-                !!localStorage.getItem('token') ? navigate("/select") : navigate("/auth");
+                !!localStorage.getItem('userId') ? navigate("/select") : navigate("/auth");
               }}
             >
               Get Started

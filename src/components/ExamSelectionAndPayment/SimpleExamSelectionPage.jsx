@@ -41,17 +41,20 @@ const SimpleExamSelectionPage = () => {
   };
 
   useEffect(() => {
-  /*  const params = new URLSearchParams(window.location.search);
-  const token = params.get('token');
-  const email = params.get('email');
-  const userid = params.get('userid');
-  if (token) {
-    localStorage.setItem('token', token);
-    localStorage.setItem('email', email);
+
+    const params = new URLSearchParams(window.location.search);
+    console.log("params: ",params);
+ // const token = params.get('token');
+ // const email = params.get('email');
+  const userid = params.get('userID');
+  console.log("userid: ",userid);
+  if (userid) {
+    //localStorage.setItem('token', token);
+    //localStorage.setItem('email', email);
     localStorage.setItem('userid', userid);
     // Now user is considered "signed in"
   }
-  */
+  
     // Load Razorpay script dynamically
     const script = document.createElement('script');
     script.src = 'https://checkout.razorpay.com/v1/checkout.js';
@@ -82,7 +85,8 @@ const SimpleExamSelectionPage = () => {
   const handlePayment = async () => {
     try {
       // Fetch Razorpay key
-      const keyResponse = await fetch(`${apiBaseUrl}/get-key`,{
+      const keyResponse = await fetch(//`${apiBaseUrl}/get-key`
+      "http://localhost:8080/get-key",{
         method:'GET',
         credentials: "include",
         headers: {
@@ -94,7 +98,8 @@ const SimpleExamSelectionPage = () => {
       const { key_id } = await keyResponse.json();
 
       // Create order
-        const orderResponse = await fetch(`${apiBaseUrl}/order`, {
+        const orderResponse = await fetch(//`${apiBaseUrl}/order`,
+          "http://localhost:8080/order", {
         method: 'POST',
         credentials: "include",
         headers: {
@@ -131,11 +136,11 @@ const SimpleExamSelectionPage = () => {
           for (let pair of formData.entries()) {
             console.log(`${pair[0]}: ${pair[1]}`);
           }
-          await fetch('http://127.0.0.1:8080/verify', {
+          await fetch('http://localhost:8080/verify', {
             method: 'POST',
-            
+            credentials: "include",
             headers: {
-              'Authorization': `Bearer ${localStorage.getItem('token')}`,
+           //   'Authorization': `Bearer ${localStorage.getItem('token')}`,
               'Content-Type': 'application/json'
             },
             body: JSON.stringify(payload),
