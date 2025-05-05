@@ -15,7 +15,7 @@ public class CookieUtils {
         Cookie cookie = new Cookie(name, value);
         cookie.setPath("/");
         cookie.setHttpOnly(true);
-        cookie.setSecure(true); // Required if SameSite=None
+        cookie.setSecure(false); // Required if SameSite=None
         cookie.setMaxAge(maxAge);
         response.addCookie(cookie);
     }
@@ -27,10 +27,11 @@ public class CookieUtils {
     public static void deleteCookie(HttpServletRequest request, HttpServletResponse response, String name) {
         Cookie cookie = WebUtils.getCookie(request, name);
         if (cookie != null) {
+        	System.out.println("cookie is not null");
             cookie.setValue("");
             cookie.setPath("/");
             cookie.setMaxAge(0);
-            cookie.setSecure(true);
+            cookie.setSecure(false);
             response.addCookie(cookie);
         }
     }

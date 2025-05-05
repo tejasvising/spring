@@ -27,11 +27,14 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import com.newpackage.neetcounsel.models.User;
+import com.newpackage.neetcounsel.repository.HttpCookieOAuth2AuthorizationRequestRepository;
 import com.newpackage.neetcounsel.repository.UserRepository;
+import com.newpackage.neetcounsel.utils.CookieUtils;
 import com.newpackage.neetcounsel.utils.JwtUtil;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -40,7 +43,7 @@ public class AuthController {
     @Autowired private UserRepository userRepository;
     @Autowired private PasswordEncoder passwordEncoder;
     @Autowired private JwtUtil jwtUtil;
-
+    @Autowired private HttpCookieOAuth2AuthorizationRequestRepository cookieAuthorizationOauth2;
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody Map<String, String> request, HttpServletResponse response) {
         String email = request.get("email");
@@ -76,12 +79,13 @@ public class AuthController {
                 .httpOnly(true)
                 .secure(false)
                 .path("/")
-                
-                .sameSite("Strict")
+                .maxAge(7 * 24 * 60 * 60)
+                .domain("localhost")
+                .sameSite("Lax")
                 .build();
 
         response.setHeader("Set-Cookie", cookie.toString());
-
+        
         // Return minimal user info
         return ResponseEntity.ok(Map.of(
             "userid", user.getId(),
@@ -94,6 +98,7 @@ public class AuthController {
   //  @CrossOrigin(origins ="http://localhost:3000", allowedHeaders = "*", allowCredentials = "true", methods = {RequestMethod.POST} )
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> request, HttpServletResponse response) {
+    	System.out.println("in /api/auth/login");
         String email = request.get("email");
         String password = request.get("password");
 
@@ -119,18 +124,21 @@ public class AuthController {
         }
 
         String token = jwtUtil.generateToken(email);
+      //  session.setAttribute("token", token);
         System.out.println("tokenme:"+token);
         ResponseCookie cookie = ResponseCookie.from("token", token)
                 .httpOnly(true)
                 .secure(false)
                 .path("/")
                 .maxAge(7 * 24 * 60 * 60)
-                
-                .sameSite("Lax")
+                .domain("localhost")
+                .sameSite("null")
                 .build();
 
         response.setHeader(HttpHeaders.SET_COOKIE, cookie.toString());
         
+        /*CookieUtils.addCookie(response, "token",
+        		token, 7*24*60*60);*/
         return ResponseEntity.ok(Map.of(
             "userid", user.getId(),
             "token", token
@@ -145,10 +153,12 @@ public class AuthController {
     
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {
+    	System.out.println("logout is called");
         // Clear Spring Security Context
+    	//session.invalidate();
         SecurityContextHolder.clearContext();
         new SecurityContextLogoutHandler().logout(request, response, null);
-
+       // cookieAuthorizationOauth2.removeAuthorizationRequest(request,response);
         // 🛡️ Delete the token cookie by setting it empty with maxAge=0
         ResponseCookie deleteCookie = ResponseCookie.from("token", "")
                 .httpOnly(true)
@@ -158,6 +168,7 @@ public class AuthController {
                 .maxAge(0) // expire immediately
                 .sameSite("Lax")
                 .build();
+        
 
         response.setHeader(HttpHeaders.SET_COOKIE, deleteCookie.toString());
         response.setHeader("Cache-Control", "no-store");

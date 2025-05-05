@@ -45,27 +45,19 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     	System.out.println("token in jwtfilter:"+token);
         if (token != null && jwtUtil.validateToken(token)) {
             String email = jwtUtil.extractEmail(token);
-
+            System.out.println("jwt validated");
             User user = userRepository.findByEmail(email).orElse(null);
 
             if (user != null) {
+            	System.out.println("user is also not nulll");
                 UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
                         email, null, List.of() // Or your actual authorities
                 );
                 SecurityContextHolder.getContext().setAuthentication(auth);
             }
         }
-      /*  String authHeader = request.getHeader("Authorization");
+    
 
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            String token = authHeader.substring(7);
-            String email = jwtUtil.extractEmail(token);
-            userRepository.findByEmail(email).ifPresent(user -> {
-                UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
-                        email, null, List.of());
-                SecurityContextHolder.getContext().setAuthentication(auth);
-            });
-        }*/
         chain.doFilter(request, response);
     }
 }

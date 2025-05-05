@@ -7,7 +7,11 @@ import org.slf4j.LoggerFactory;
 
 import com.newpackage.neetcounsel.service.CallingAPIService;
 import com.newpackage.neetcounsel.service.RazorpayService;
+import com.newpackage.neetcounsel.utils.JwtUtil;
 import com.razorpay.Order;
+
+import jakarta.servlet.http.HttpSession;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
@@ -15,6 +19,7 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
@@ -25,7 +30,7 @@ import com.newpackage.neetcounsel.dtos.*;
 @RestController
 //@RequestMapping("/api/payment")
 @PropertySource("classpath:application.properties")
-@CrossOrigin(origins = "*") // allow frontend to connect
+
 public class PaymentController {
 	
 	private final static Logger log = LoggerFactory.getLogger(Controller.class);
@@ -40,10 +45,20 @@ public class PaymentController {
 	private String razorpay_key;
     @Autowired
     private CallingAPIService callingAPIService;
+    @Autowired
+    private JwtUtil jwtUtil;
     
     @GetMapping("/get-key")
 	
-    public ResponseEntity get_key() {
+    public ResponseEntity get_key(@CookieValue(name = "token", required = false) String token) {
+    	/*String token = (String) session.getAttribute("token");
+        
+        // 2. Validate session token
+        if (token == null || !jwtUtil.validateToken(token)) {
+            log.warn("Invalid session for ID: {}", session.getId());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(Map.of("error", "Session expired or invalid"));
+        }*/
     	System.out.println("in get-key");
     	HashMap<String,String> map=new HashMap<>();
     	map.put("key_id", razorpay_key);
