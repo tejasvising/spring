@@ -16,6 +16,7 @@ pipeline {
         stage('Build JAR') {
             steps {
                 dir('neetcounsel') {
+                sh 'chmod +x mvnw'
             sh './mvnw clean package -DskipTests'
         }
             }
