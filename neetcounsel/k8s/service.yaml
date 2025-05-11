@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: neetcounsel-service
+spec:
+  selector:
+    app: neetcounsel
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+  type: LoadBalancer  # or ClusterIP for internal

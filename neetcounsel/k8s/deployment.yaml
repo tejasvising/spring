@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: neetcounsel-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: neetcounsel
+  template:
+    metadata:
+      labels:
+        app: neetcounsel
+    spec:
+      containers:
+        - name: neetcounsel
+          image: tejasvi18/neetcounsel:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "prod"  # or your profile
