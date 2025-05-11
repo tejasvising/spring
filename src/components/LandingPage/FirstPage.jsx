@@ -38,9 +38,9 @@ const Firstpage = () => {
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({
+        /*body: JSON.stringify({
           "userid": localStorage.getItem('userid')
-        }),
+        }),*/
       });
       const data= await res.text();
       console.log("logoutted: ",data);

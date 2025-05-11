@@ -85,8 +85,7 @@ const SimpleExamSelectionPage = () => {
   const handlePayment = async () => {
     try {
       // Fetch Razorpay key
-      const keyResponse = await fetch(//`${apiBaseUrl}/get-key`
-      "http://localhost:8080/get-key",{
+      const keyResponse = await fetch( "http://localhost:8080/get-key",{
         method:'GET',
         credentials: "include",
         headers: {
