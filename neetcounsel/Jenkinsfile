@@ -15,7 +15,9 @@ pipeline {
 
         stage('Build JAR') {
             steps {
-                sh './mvnw clean package -DskipTests' // if you use Maven wrapper
+                dir('neetcounsel') {
+            sh './mvnw clean package -DskipTests'
+        }
             }
         }
 
