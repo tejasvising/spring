@@ -52,5 +52,18 @@ pipeline {
                 }
             }
         }
+        
+        stage('Deploy to Minikube') {
+    steps {
+        script {
+            // Option 1: Restart the deployment to pull the latest image
+            sh 'kubectl rollout restart deployment neetcounsel-deployment'
+            
+            // Option 2: Or re-apply k8s manifests (especially useful if tag changes)
+            // sh 'kubectl apply -f neetcounsel/k8s/'
+        }
+    }
+}
+        
     }
 }
