@@ -1,31 +1,26 @@
 # ---- STAGE 1: Build the JAR ----
-FROM maven:3.8.6-openjdk-17-slim AS build
+FROM maven:3.9.6-eclipse-temurin-17-alpine AS build
 
 WORKDIR /app
 
-# Copy only pom.xml first (to leverage Docker cache)
+# Copy pom and download dependencies first
 COPY pom.xml .
-
-# Download dependencies
 RUN mvn dependency:go-offline
 
-# Copy the full source code
+# Copy source and build the app
 COPY src ./src
-
-# Package the Spring Boot app
 RUN mvn clean package -DskipTests
 
 # ---- STAGE 2: Run the app ----
-FROM openjdk:17-jdk-slim
+FROM eclipse-temurin:17-jdk-alpine
 
 WORKDIR /app
 
-# Copy the built JAR from the previous stage
+# Copy the built jar from the build stage
 COPY --from=build /app/target/*.jar app.jar
 
-# Use dynamic port from Render
+# Let Render inject the port
 ENV PORT=8080
 EXPOSE $PORT
 
-# Start the app
 CMD ["java", "-jar", "app.jar"]
