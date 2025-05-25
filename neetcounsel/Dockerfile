@@ -1,14 +1,31 @@
-# Use an official OpenJDK runtime as a parent image
-FROM openjdk:17-jdk-slim
+# ---- STAGE 1: Build the JAR ----
+FROM maven:3.8.6-openjdk-17-slim AS build
 
-# Set the working directory
 WORKDIR /app
 
-# Copy the JAR file into the container
-COPY target/*.jar app.jar
+# Copy only pom.xml first (to leverage Docker cache)
+COPY pom.xml .
 
-# Expose the port the app runs on (e.g., 8080)
-EXPOSE 8080
+# Download dependencies
+RUN mvn dependency:go-offline
 
-# Run the JAR file
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# Copy the full source code
+COPY src ./src
+
+# Package the Spring Boot app
+RUN mvn clean package -DskipTests
+
+# ---- STAGE 2: Run the app ----
+FROM openjdk:17-jdk-slim
+
+WORKDIR /app
+
+# Copy the built JAR from the previous stage
+COPY --from=build /app/target/*.jar app.jar
+
+# Use dynamic port from Render
+ENV PORT=8080
+EXPOSE $PORT
+
+# Start the app
+CMD ["java", "-jar", "app.jar"]
