@@ -77,7 +77,7 @@ public class AuthController {
         // Set Secure Cookie
         ResponseCookie cookie = ResponseCookie.from("token", token)
                 .httpOnly(true)
-                .secure(false)
+                .secure(true)
                 .path("/")
                 .maxAge(7 * 24 * 60 * 60)
                 .domain("localhost")
@@ -128,7 +128,7 @@ public class AuthController {
         System.out.println("tokenme:"+token);
         ResponseCookie cookie = ResponseCookie.from("token", token)
                 .httpOnly(true)
-                .secure(false)
+                .secure(true)
                 .path("/")
                 .maxAge(7 * 24 * 60 * 60)
                 //.domain("localhost")

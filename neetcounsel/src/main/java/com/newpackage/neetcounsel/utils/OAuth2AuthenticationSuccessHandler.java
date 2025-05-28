@@ -47,7 +47,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         
         ResponseCookie cookie = ResponseCookie.from("token", token)
         	    .httpOnly(true)
-        	    .secure(false)
+        	    .secure(true)
         	    .path("/")
         	    .maxAge(7*24 * 60 * 60)
         	    .sameSite("Strict")

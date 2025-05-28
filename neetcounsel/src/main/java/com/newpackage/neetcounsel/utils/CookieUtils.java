@@ -15,7 +15,7 @@ public class CookieUtils {
         Cookie cookie = new Cookie(name, value);
         cookie.setPath("/");
         cookie.setHttpOnly(true);
-        cookie.setSecure(false); // Required if SameSite=None
+        cookie.setSecure(true); // Required if SameSite=None
         cookie.setMaxAge(maxAge);
         response.addCookie(cookie);
     }
@@ -31,7 +31,7 @@ public class CookieUtils {
             cookie.setValue("");
             cookie.setPath("/");
             cookie.setMaxAge(0);
-            cookie.setSecure(false);
+            cookie.setSecure(true);
             response.addCookie(cookie);
         }
     }
