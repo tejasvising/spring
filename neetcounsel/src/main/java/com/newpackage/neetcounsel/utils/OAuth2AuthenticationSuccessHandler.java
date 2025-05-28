@@ -55,7 +55,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
         	response.setHeader("Set-Cookie", cookie.toString());
         // Redirect to frontend with token and email as query parameters
-        String redirectUrl = "http://localhost:3000/select"+"?userID="+user.get().getId();
+        String redirectUrl = "https://simba-react.vercel.app/select"+"?userID="+user.get().getId();
         System.out.println("Redirecting to: " + redirectUrl);
         
         getRedirectStrategy().sendRedirect(request, response, redirectUrl);

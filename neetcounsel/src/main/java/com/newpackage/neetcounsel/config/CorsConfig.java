@@ -14,7 +14,7 @@ public class CorsConfig {
 	@Bean
 	public CorsConfigurationSource corsConfigurationSource() {
 	    CorsConfiguration config = new CorsConfiguration();
-	    config.setAllowedOrigins(List.of("http://localhost:3000","https://counselling-kq02.onrender.com")); 
+	    config.setAllowedOrigins(List.of("http://localhost:3000","https://counselling-kq02.onrender.com","https://simba-react.vercel.app")); 
 	    config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
 	    config.setAllowedHeaders(List.of("*"));
 	    config.setExposedHeaders(List.of("Set-Cookie", "Authorization")); 
