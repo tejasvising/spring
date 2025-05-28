@@ -80,8 +80,8 @@ public class AuthController {
                 .secure(true)
                 .path("/")
                 .maxAge(7 * 24 * 60 * 60)
-                .domain("localhost")
-                .sameSite("Lax")
+               // .domain("localhost")
+                .sameSite("None")
                 .build();
 
         response.setHeader("Set-Cookie", cookie.toString());
@@ -132,7 +132,7 @@ public class AuthController {
                 .path("/")
                 .maxAge(7 * 24 * 60 * 60)
                 //.domain("localhost")
-                .sameSite("null")
+                .sameSite("None")
                 .build();
 
         response.setHeader(HttpHeaders.SET_COOKIE, cookie.toString());
@@ -164,9 +164,9 @@ public class AuthController {
                 .httpOnly(true)
                 .secure(request.isSecure())
                 .path("/")
-                .domain("localhost")
+               // .domain("localhost")
                 .maxAge(0) // expire immediately
-                .sameSite("Lax")
+                .sameSite("None")
                 .build();
         
 

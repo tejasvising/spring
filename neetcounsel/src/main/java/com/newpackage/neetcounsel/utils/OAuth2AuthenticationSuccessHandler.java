@@ -50,7 +50,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         	    .secure(true)
         	    .path("/")
         	    .maxAge(7*24 * 60 * 60)
-        	    .sameSite("Strict")
+        	    .sameSite("None") //Strict
         	    .build();
 
         	response.setHeader("Set-Cookie", cookie.toString());

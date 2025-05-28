@@ -42,12 +42,12 @@ public class SecurityConfig {
 
     @Autowired private JwtUtil jwtUtil;
     @Autowired private UserRepository userRepository;
-    @Autowired private CorsConfig corsConfig;
+//    @Autowired private CorsConfig corsConfig;
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
             .csrf(csrf -> csrf.disable())
-            .cors(cors -> cors.configurationSource(corsConfig.corsConfigurationSource()))
+            .cors(Customizer.withDefaults())
             
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/**", "/oauth2/**").permitAll()
