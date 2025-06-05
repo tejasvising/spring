@@ -50,7 +50,7 @@ public class SecurityConfig {
             .cors(Customizer.withDefaults())
             
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**", "/oauth2/**").permitAll()
+                .requestMatchers("/api/auth/**", "/oauth2/**","/coldstart").permitAll()
                // .requestMatchers("/get-key").permitAll()
                 .anyRequest().authenticated()
             )

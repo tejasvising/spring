@@ -85,7 +85,11 @@ public class Controller {
 	public ResponseEntity<String> callingapi(@RequestBody Map<String, Object> payload) {
 	    return paymentProcessingService.handlePaymentAndCallApi(payload);
 	}
-
+	
+	@GetMapping("/coldstart")
+	public String forColdRestart() {
+		return "Greetings";
+	}
 	
 	
 }
